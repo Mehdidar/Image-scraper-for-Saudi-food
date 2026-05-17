@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scraper For Suadia Food Image Dataset</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fbfbfd;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --accent: #0071e3;
+            --input-bg: #f5f5f7;
+            --border-subtle: rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            color: #000;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 19px;
+            font-weight: 400;
+            margin-bottom: 24px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 100px;
+            background: #f5f5f7;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.4s ease;
+        }
+
+        .status-badge .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background: #d2d2d7;
+        }
+
+        .status-badge.on {
+            color: var(--accent);
+            background: #e8f2ff;
+        }
+
+        .status-badge.on .dot {
+            background: var(--accent);
+            box-shadow: 0 0 8px rgba(0, 113, 227, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-radius: 30px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .input-group input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid transparent;
+            padding: 16px 20px;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s ease;
+            margin-bottom: 16px;
+        }
+
+        .input-group input:focus {
+            background: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn:hover {
+            background: #0077ed;
+            transform: scale(0.995);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-item {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            transition: transform 0.2s ease;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-1px);
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            color: #000;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn.loading .btn-text { visibility: hidden; }
+        .btn.loading .spinner { display: block; }
+
+        .message {
+            margin-top: 14px;
+            font-size: 14px;
+            height: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: 500;
+        }
+        .message.show { opacity: 1; }
+        .message.success { color: #28cd41; }
+        .message.error { color: #ff3b30; }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Scraper For Suadia Food Image Dataset    </h1>
+
+            <div id="statusBadge" class="status-badge">
+                <div class="dot"></div>
+                <span id="statusText">System Idle</span>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <form id="scrapeForm">
+                <div class="input-group">
+                    <input type="url" id="urlInput" placeholder="https://example.com" required>
+                </div>
+                <button type="submit" class="btn" id="submitBtn">
+                    <span class="btn-text">Initiate</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+            <div id="statusMessage" class="message"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value" id="sitesVisited">0</div>
+                <div class="stat-label">Sites</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="imagesExtracted">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="vegImages" style="color: #28cd41;">0</div>
+                <div class="stat-label">Veg</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="nonVegImages" style="color: #ff3b30;">0</div>
+                <div class="stat-label">Non-Veg</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const formatNumber = (num) => new Intl.NumberFormat('en-US').format(num);
+
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                document.getElementById('sitesVisited').innerText = formatNumber(data.visited_sites || 0);
+                document.getElementById('imagesExtracted').innerText = formatNumber(data.total_images || 0);
+                document.getElementById('vegImages').innerText = formatNumber(data.veg_images || 0);
+                document.getElementById('nonVegImages').innerText = formatNumber(data.non_veg_images || 0);
+                
+                const badge = document.getElementById('statusBadge');
+                const badgeText = document.getElementById('statusText');
+                if (data.is_scraping) {
+                    badge.classList.add('on');
+                    badgeText.innerText = 'Extracting...';
+                } else {
+                    badge.classList.remove('on');
+                    badgeText.innerText = 'System Idle';
+                }
+            } catch (err) {
+                console.error('Stats sync failed');
+            }
+        }
+
+        function showMessage(text, type) {
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.innerText = text;
+            statusMsg.className = 'message show ' + type;
+            setTimeout(() => statusMsg.classList.remove('show'), 4000);
+        }
+
+        document.getElementById('scrapeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const urlInput = document.getElementById('urlInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const url = urlInput.value;
+            
+            submitBtn.classList.add('loading');
+            urlInput.disabled = true;
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/scrape', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                
+                if (response.ok) {
+                    showMessage('Extraction initiated', 'success');
+                    urlInput.value = '';
+                    fetchStats();
+                } else {
+                    showMessage('Failed to initiate', 'error');
+                }
+            } catch (err) {
+                showMessage('Connection error', 'error');
+            } finally {
+                submitBtn.classList.remove('loading');
+                urlInput.disabled = false;
+                submitBtn.disabled = false;
+            }
+        });
+
+        fetchStats();
+        setInterval(fetchStats, 3000);
+    </script>
+</body>
+</html>
