@@ -52,3 +52,7 @@ Features
 - Retries failed requests automatically.
 - Sanitizes image filenames, filters out small images (like tracking pixels under 5KB), and falls back to social meta tags (og:image) if a primary article image isn't found.
 - Saves data to output/food_data.csv with UTF-8 BOM encoding so Arabic text displays correctly in Excel.
+
+License
+
+Released under the MIT License (see LICENSE).
